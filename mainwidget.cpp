@@ -54,12 +54,22 @@
 
 #include <math.h>
 
-MainWidget::MainWidget(QWidget *parent) :
+MainWidget::MainWidget(QWidget *parent, int time) :
     QOpenGLWidget(parent),
     geometries(0),
     texture(0),
     angularSpeed(0)
 {
+    timerUpdate = time;
+}
+
+MainWidget::MainWidget(int time) :
+    QOpenGLWidget(0),
+    geometries(0),
+    texture(0),
+    angularSpeed(0)
+{
+    timerUpdate = time;
 }
 
 MainWidget::~MainWidget()
@@ -71,6 +81,23 @@ MainWidget::~MainWidget()
     delete geometries;
     doneCurrent();
 }
+
+void MainWidget::setValue(int value)
+{
+    if(value == 0){
+        timerUpdate++;
+        timer.start(timerUpdate, this);
+        emit valueChanged(value);
+    }
+    else{
+        if(timerUpdate > 1)
+            timerUpdate--;
+
+        timer.start(timerUpdate, this);
+        emit valueChanged(value);
+    }
+}
+
 
 //! [0]
 void MainWidget::mousePressEvent(QMouseEvent *e)
@@ -99,20 +126,58 @@ void MainWidget::mouseReleaseEvent(QMouseEvent *e)
 }
 //! [0]
 
+void MainWidget::keyPressEvent(QKeyEvent* event){
+    switch (event->key()) {
+        /*case Qt::Key_Right:
+            xPos += 0.1;
+            update();
+            break;
+        case Qt::Key_Left:
+            xPos -= 0.1;
+            update();
+            break;
+        case Qt::Key_Up:
+            yPos += 0.1;
+            update();
+            break;
+        case Qt::Key_Down:
+            yPos -= 0.1;
+            update();
+            break;*/
+        case Qt::Key_Z:
+            setValue(0);
+            break;
+        case Qt::Key_S:
+            setValue(1);
+            break;
+        default:
+            event->ignore();
+            break;
+
+    }
+}
+
 //! [1]
 void MainWidget::timerEvent(QTimerEvent *)
 {
     // Decrease angular speed (friction)
-    angularSpeed *= 0.99;
+    //angularSpeed *= 0.99;
+    angularSpeed = 1;
 
     // Stop rotation when speed goes below threshold
     if (angularSpeed < 0.01) {
         angularSpeed = 0.0;
     } else {
         // Update rotation
+        QVector3D from(0.0f, 1.0f, 0.0f);
+        QVector3D to(0.0f, 1.0f, 1.0f); // arbitrary target vector
+        QQuaternion rot = QQuaternion::rotationTo(from, to);
+        float x, y, z, angle;
+        rot.getAxisAndAngle(&x, &y, &z, &angle);
+        rotationAxis = QVector3D(x, y, z);
+
         rotation = QQuaternion::fromAxisAndAngle(rotationAxis, angularSpeed) * rotation;
 
-        // Request an update
         update();
     }
 }
@@ -138,7 +203,8 @@ void MainWidget::initializeGL()
     geometries = new GeometryEngine;
 
     // Use QBasicTimer because its faster than QTimer
-    timer.start(12, this);
+    //timer.start(12, this);
+    timer.start(timerUpdate, this);
 }
 
 //! [3]
@@ -207,7 +273,7 @@ void MainWidget::paintGL()
 //! [6]
     // Calculate model view transformation
     QMatrix4x4 matrix;
-    matrix.translate(0.0, 0.0, -5.0);
+    matrix.translate(xPos, yPos, -5.0);
     matrix.rotate(rotation);
 
     // Set modelview-projection matrix
@@ -218,5 +284,6 @@ void MainWidget::paintGL()
     program.setUniformValue("texture", 0);
 
     // Draw cube geometry
-    geometries->drawCubeGeometry(&program);
+    //geometries->drawCubeGeometry(&program);
+    geometries->drawPlaneGeometry(&program);
 }

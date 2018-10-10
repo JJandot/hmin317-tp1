@@ -51,6 +51,8 @@
 #include <QApplication>
 #include <QLabel>
 #include <QSurfaceFormat>
+#include <iostream>
+
 
 #ifndef QT_NO_OPENGL
 #include "mainwidget.h"
@@ -66,9 +68,29 @@ int main(int argc, char *argv[])
 
     app.setApplicationName("cube");
     app.setApplicationVersion("0.1");
+
 #ifndef QT_NO_OPENGL
     MainWidget widget;
     widget.show();
+
+   /* MainWidget widget10(10);
+    widget10.show();
+
+    MainWidget widget100(100);
+    widget100.show();
+
+    MainWidget widget1000(1000);
+    widget1000.show();
+
+
+    QObject::connect(&widget, SIGNAL(valueChanged(int)),
+                         &widget10, SLOT(setValue(int)));
+    QObject::connect(&widget, SIGNAL(valueChanged(int)),
+                         &widget100, SLOT(setValue(int)));
+    QObject::connect(&widget, SIGNAL(valueChanged(int)),
+                         &widget1000, SLOT(setValue(int)));*/
+
+
 #else
     QLabel note("OpenGL Support required");
     note.show();

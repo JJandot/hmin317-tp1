@@ -53,6 +53,7 @@
 
 #include "geometryengine.h"
 
+#include <iostream>
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
 #include <QMatrix4x4>
@@ -61,6 +62,8 @@
 #include <QBasicTimer>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
+#include <QKeyEvent>
+
 
 class GeometryEngine;
 
@@ -69,12 +72,18 @@ class MainWidget : public QOpenGLWidget, protected QOpenGLFunctions
     Q_OBJECT
 
 public:
-    explicit MainWidget(QWidget *parent = 0);
-    ~MainWidget();
+    explicit MainWidget(QWidget *parent = 0, int timerUpdate = 1);
+    MainWidget(int timerUpdate);
+    ~MainWidget() override;
+public slots:
+    void setValue(int val);
+signals:
+    void valueChanged(int newVal);
 
 protected:
     void mousePressEvent(QMouseEvent *e) override;
     void mouseReleaseEvent(QMouseEvent *e) override;
+    void keyPressEvent(QKeyEvent* event) override;
     void timerEvent(QTimerEvent *e) override;
 
     void initializeGL() override;
@@ -83,6 +92,8 @@ protected:
 
     void initShaders();
     void initTextures();
+
+
 
 private:
     QBasicTimer timer;
@@ -97,6 +108,8 @@ private:
     QVector3D rotationAxis;
     qreal angularSpeed;
     QQuaternion rotation;
+    int timerUpdate;
+    float xPos, yPos;
 };
 
 #endif // MAINWIDGET_H

@@ -70,10 +70,10 @@ int main(int argc, char *argv[])
     app.setApplicationVersion("0.1");
 
 #ifndef QT_NO_OPENGL
-    MainWidget widget;
+    MainWidget widget(1);
     widget.show();
 
-   /* MainWidget widget10(10);
+    MainWidget widget10(10);
     widget10.show();
 
     MainWidget widget100(100);
@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
     MainWidget widget1000(1000);
     widget1000.show();
 
-
+/*
     QObject::connect(&widget, SIGNAL(valueChanged(int)),
                          &widget10, SLOT(setValue(int)));
     QObject::connect(&widget, SIGNAL(valueChanged(int)),
